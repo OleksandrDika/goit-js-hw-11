@@ -26,3 +26,56 @@
   background-size: cover;
   background-position: center;
 }
+
+body {
+  
+}
+
+.search_box{
+  background-color: rgb(55, 55, 237);
+  width: 100%;
+  
+}
+
+.search-form {
+  display: flex;
+  justify-content: center;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  height: 60px;
+  border-radius: 2px; 
+  
+}
+
+.gallery {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+  
+  
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.photo-card {
+  
+  width: 400px;
+  box-shadow: 10px 10px 8px 2px rgba(0, 0, 0, 0.3);
+}
+
+.info {
+  display: flex;
+  gap: 10px;
+  margin-left: 15px;
+}
+
+.load-more {
+  display: flex;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
