@@ -34,25 +34,29 @@ async function onsubmit(event) {
     event.preventDefault()
     card.innerHTML=''; 
     page = 1;
-    const name = input.value;    
+    const name = input.value;
+    if (name) {
+      try {
+        const data = await fetchImages(name)
+        if (data.hits.length === 0) {          
+          Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please, try again') 
+          return         
+        } else  {
+          createMarkup(data.hits)
+        butLoadMore.style.visibility = "visible";
+        Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`)
+        lightbox.refresh();
+  
+        }
+      } catch (error) {
+        Notiflix.Notify.failure('Error, try again')
+      }  
+      
+    }    
     
     console.log(name)   
 
-    try {
-      const data = await fetchImages(name)
-      if (data.hits.length === 0) {          
-        Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please, try again') 
-        return         
-      } else  {
-        createMarkup(data.hits)
-      butLoadMore.style.visibility = "visible";
-      Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`)
-      lightbox.refresh();
-
-      }
-    } catch (error) {
-      Notiflix.Notify.failure('Error, try again')
-    }         
+          
 }
 
 async function fetchImages(name) {
