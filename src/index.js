@@ -2,7 +2,7 @@ import axios from "axios";
 import Notiflix from 'notiflix';
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
-const axios = require('axios');
+// const axios = require('axios');
 
 const form = document.querySelector('#search-form');
 const input = document.querySelector('.form_input');
@@ -18,48 +18,55 @@ const KEY = "32828546-a8b3cc930d15adedebd405197"
 const BASE_URL = "https://pixabay.com/api/"
 const OPTIONS = 'image_type=photo&orientation=horizontal&safesearch=true'
 
+let page = 1;
+const optionsLightbox = { 
+  captions: true,
+  captionsData: 'alt',   
+  captionDelay: 250,
+  enableKeyboard: true,
+  animationSpeed: 150,
+  fadeSpeed: 200,
+};
 
-function onsubmit(event) {
+const lightbox = new SimpleLightbox('.gallery a', optionsLightbox);
+
+async function onsubmit(event) {
     event.preventDefault()
     card.innerHTML=''; 
-    const name = input.value;     
+    page = 1;
+    const name = input.value;    
     
-    console.log(name)
-    fetchImages(name).then(data=> {
-        console.log(data)
-        console.log(data.hits)
-        console.log(data.totalHits)
+    console.log(name)   
 
-        if (data.hits.length === 0) {          
-          Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please, try again') 
-          return         
-        } else  {
-          createMarkup(data.hits)
-        butLoadMore.style.visibility = "visible";
-        Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`)
+    try {
+      const data = await fetchImages(name)
+      if (data.hits.length === 0) {          
+        Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please, try again') 
+        return         
+      } else  {
+        createMarkup(data.hits)
+      butLoadMore.style.visibility = "visible";
+      Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`)
+      lightbox.refresh();
 
-        }       
-        
-    })       
+      }
+    } catch (error) {
+      Notiflix.Notify.failure('Error, try again')
+    }         
 }
 
+async function fetchImages(name) {
 
-let page = 1;
-function fetchImages(name) {
-   
-    const resp = fetch(`${BASE_URL}?key=${KEY}&q=${name}&${OPTIONS}&per_page=40&page=${page}`).then(resp => {
-        console.log(resp);
-        if (!resp.ok) {
-            throw new Error(resp.statusText)
-        }        
-           page+=1;
-           return resp.json();
-       
-    })
-    .catch(err => Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please, try again'))
-    return resp;
+  try {
+    const resp =await axios.get(`${BASE_URL}?key=${KEY}&q=${name}&${OPTIONS}&per_page=40&page=${page}`)
+    page+=1;
+    return resp.data;
     
-}
+  } catch (error) {
+    throw new Error(Notiflix.Notify.failure(`We're sorry, but you've reached the end of search results.`));
+  }  
+      
+};
 
 function createMarkup (arr) {
     const markup = arr.map(item => `      
@@ -83,39 +90,24 @@ function createMarkup (arr) {
     card.insertAdjacentHTML('beforeend', markup)
 }
 
-new SimpleLightbox('.gallery a', 
-{ 
-captions: true, 
-nav: true,
-captionDelay: 250, 
-}
-);
 
-// let gallery = new SimpleLightbox('.gallery a');
-// gallery.on('show.simplelightbox', function () {
-// 	console.log('SSSS')
-// });
+async function loadMore (event) {
+  
+  const name = input.value;      
+  try {
+    const data = await fetchImages(name)   
+    if (data.hits.length === 0) {
+      
+      Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please, try again')
+      butLoadMore.style.visibility = "hidden"
+    }
+    createMarkup(data.hits)
+    lightbox.refresh();
 
-function loadMore (event) {
-  console.log('OK')
-  const name = input.value;
-     
-  console.log("OK")
-  console.log(name)
-  fetchImages(name).then(data=> {
-      console.log(data.hits)
-      console.log(data.totalHits)
-
-      if (data.hits.length === 0) {
-        
-        Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please, try again')
-      }
-      createMarkup(data.hits)
-
-  })    
+} 
+   catch (error) {
+    console.log(error)
+  }
+       
 };
 
-
-// var gallery = $('.gallery a').simpleLightbox();
-
-// gallery.next();
